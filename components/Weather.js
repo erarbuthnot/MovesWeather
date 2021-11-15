@@ -5,7 +5,12 @@ import { weatherConditions } from '../utils/WeatherConditions';
 import SearchBar from './SearchBar';
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-
+/**
+ * Takes the weather forecast, the city, and a function for generating
+ * new city data and creates the weather component with them
+ * @param {Object, String, Function} param0 
+ * @returns Return the Weather component
+ */
 const Weather = ({weather, city, func}) => {
   if (weather != null) {
     return (

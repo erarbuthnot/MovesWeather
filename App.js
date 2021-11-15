@@ -1,12 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-
 import { API_KEY } from './utils/WeatherAPIKey';
-
 import Weather from './components/Weather';
 
 export default class App extends React.Component {
 
+  // default state, on startup loads toronto weather forecast
   state = {
     city: "Toronto",
     postal: null,
@@ -14,17 +13,26 @@ export default class App extends React.Component {
     forecast: null
   };
 
+  /**
+   * determines whether data entry is zip code or city
+   * @param {string} data 
+   */
   zipOrCity(data){
     if (data.includes(',')){
-      //zip
+      // , indicates the entry is a zip code
       this.changeCity(data,true)
     }
     else{
-      //city
+      // otherwise it indicates the entry is a city
       this.changeCity(data,false)
     }
   }
 
+  /**
+   * sends fetchWeather correct string to get weatherData
+   * @param {string} data 
+   * @param {boolean} zip 
+   */
   changeCity(data,zip){
     let entry = ""
     if (zip){
@@ -36,38 +44,55 @@ export default class App extends React.Component {
     this.fetchWeather(entry)
   }
 
+  /**
+   * after render, begin loading whether data using default city state
+   */
   componentDidMount(){
     this.zipOrCity(this.state.city)
   }
 
+  /**
+   * Takes entry of zip code or city and acquires whether data
+   * then sets state varaibles with new forecast
+   * @param {string} entry 
+   */
   fetchWeather(entry) {
     fetch(
       `http://api.openweathermap.org/data/2.5/forecast?${entry}&cnt=7&lang=en&appid=${API_KEY}&units=metric`
       )
       .then(res => res.json())
       .then(json => {
-        let newforecast = []
-        for(let i = 0; i < 7; i++){
-          newforecast[i] = {
-            desc: json.list[i].weather[0].main,
-            current: json.list[i].main.temp,
-            min: json.list[i].main.temp_min,
-            max: json.list[i].main.temp_max,
-            wind: json.list[i].wind.speed,
-            precip: json.list[i].pop,
-            humid: json.list[i].main.humidity
+        // if actual forecast data returned and not error, then we update everything
+        if(json.cod != "404"){
+          let newforecast = []
+          // loop and get each days forecast data
+          for(let i = 0; i < 7; i++){
+            newforecast[i] = {
+              desc: json.list[i].weather[0].main,
+              current: json.list[i].main.temp,
+              min: json.list[i].main.temp_min,
+              max: json.list[i].main.temp_max,
+              wind: json.list[i].wind.speed,
+              precip: json.list[i].pop,
+              humid: json.list[i].main.humidity
+            }
           }
-        }
-        if(newforecast != null){
-          this.setState({
-            forecast: newforecast,
-            isLoading: false,
-            city: json.city.name
-          });
+          // check newforecast actually was assigned values
+          if(newforecast != null){
+            this.setState({
+              forecast: newforecast,
+              isLoading: false,
+              city: json.city.name
+            });
+          }
         }
       });
   }
 
+  /**
+   * Renders the screen
+   * @returns Weather screen or loading weather screen
+   */
   render() {
     return (
       <ScrollView style={styles.container}>

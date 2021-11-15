@@ -1,6 +1,13 @@
 import React from 'react';
 import {View, TextInput, StyleSheet} from 'react-native';
 
+/**
+ * Takes function to be performed on search bar submission,
+ * creates the search bar and then applies the function to
+ * the onSubmitEditing property
+ * @param {Function} func 
+ * @returns Returns the SearchBar component
+ */
 const SearchBar = (func) => {
     return(
         <View style={styles.container}>
